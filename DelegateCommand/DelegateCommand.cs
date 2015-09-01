@@ -5,46 +5,58 @@ namespace Implementations
 {
     public class DelegateCommand : ICommand
     {
-        #region Fields
+        private readonly Action _execute;
+        private readonly Func<bool> _canExecute;
+        private readonly Action<object> _executeWithParam;
+        private readonly Predicate<object> _canExecuteWithParam;
 
-        readonly Action<object> _execute;
-        readonly Predicate<object> _canExecute;
-
-        #endregion
-
-        #region Constructor
-
-        public DelegateCommand(Action<object> execute) : this(execute, null)
-        {
-
-        }
-        public DelegateCommand(Action<object> execute, Predicate<object> canExecute)
+        public DelegateCommand(Action execute) : this(execute, () => true) { }
+        public DelegateCommand(Action<object> execute) : this(execute, null) { }
+        public DelegateCommand(Action execute, Func<bool> canExecute) 
         {
             if (execute == null)
-                throw new ArgumentNullException("Execute cannot be null");
+                throw new ArgumentNullException("Execute", "Execute cannot be null");
 
             _execute = execute;
             _canExecute = canExecute;
         }
+        public DelegateCommand(Action<object> execute, Predicate<object> canExecute)
+        {
+            if (execute == null)
+                throw new ArgumentNullException("Execute", "Execute cannot be null");
 
-        #endregion
+            _executeWithParam = execute;
+            _canExecuteWithParam = canExecute;
+        }
 
         #region ICommand Implementation
 
         public event EventHandler CanExecuteChanged;
+
         public bool CanExecute(object parameter)
         {
-            if (_canExecute == null)
+            if (_canExecuteWithParam == null && _canExecute == null)
             {
                 return true;
             }
+            else if (_canExecute != null)
+            {
+                return _canExecute();
+            }
 
-            return _canExecute(parameter);
+            return _canExecuteWithParam(parameter);
         }
         public void Execute(object parameter)
         {
-            _execute(parameter);
+            if (_executeWithParam == null)
+            {
+                _execute();
+                return;
+            }
+
+            _executeWithParam(parameter);
         }
+
         public void RaiseCanExecuteChanged()
         {
 
