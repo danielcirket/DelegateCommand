@@ -36,20 +36,6 @@ namespace Commands
 
         #region IAsyncCommand Implementation
 
-        public event EventHandler CanExecuteChanged
-        {
-            add { _delegateCommand.CanExecuteChanged += value; }
-            remove { _delegateCommand.CanExecuteChanged -= value; }
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return !_isExecuting && _delegateCommand.CanExecute((T)parameter); ;
-        }
-        public async void Execute(object parameter)
-        {
-            await ExecuteAsync(parameter);
-        }
         public async Task ExecuteAsync(object parameter)
         {
             _isExecuting = true;
@@ -65,6 +51,25 @@ namespace Commands
         public void RaiseCanExecuteChanged()
         {
             _delegateCommand.RaiseCanExecuteChanged();
+        }
+
+        #endregion
+
+        #region ICommand Implementation
+
+        public event EventHandler CanExecuteChanged
+        {
+            add { _delegateCommand.CanExecuteChanged += value; }
+            remove { _delegateCommand.CanExecuteChanged -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return !_isExecuting && _delegateCommand.CanExecute((T)parameter); ;
+        }
+        public async void Execute(object parameter)
+        {
+            await ExecuteAsync(parameter);
         }
 
         #endregion
