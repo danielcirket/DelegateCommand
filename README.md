@@ -47,7 +47,7 @@ private Task MyAction()
 
 private Task MyActionWithParameter(T param)
 {
-    await SomeAsyncStuff();
+    await SomeAsyncStuff(param);
 }
 
 ```
